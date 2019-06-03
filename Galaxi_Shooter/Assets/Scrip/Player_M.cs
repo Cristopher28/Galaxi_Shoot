@@ -11,9 +11,16 @@ public class Player_M : MonoBehaviour
      public float Speed = 5;
     [SerializeField]
     private GameObject Laser_Prefab;
+    //aremos un cooldown para  controlar los disparos que ara nuestro jugador 
+    //necesitaremos dos variables una variable para medir el tiempopara volver a dispara.
+    //la otra variable es para la velocidad de disparo de 0.25f 
+    public float fireRate = 0.25f;
+    [SerializeField]
+    private float _nextFire = 0.0f;
 
 
-    
+
+
     void Start()
     {
         transform.position = new Vector3(0, 0, 0);
@@ -30,7 +37,12 @@ public class Player_M : MonoBehaviour
         transform.Translate(Vector3.up * vertical * Speed * Time.deltaTime);
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Instantiate(Laser_Prefab,transform.position + new Vector3(0,0.83f,0) , Quaternion.identity);
+            if(Time.time > _nextFire)
+            {
+                _nextFire = Time.time + fireRate;
+                Instantiate(Laser_Prefab, transform.position + new Vector3(0, 0.83f, 0), Quaternion.identity);
+            }
+            
         }
         Move_Player();
 
