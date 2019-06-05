@@ -4,22 +4,100 @@ using UnityEngine;
 
 public class Enamy_move : MonoBehaviour
 {
-    [SerializeField]
-    private float _speed = 5f;
-    // Start is called before the first frame update
-    void Start()
+    public enum SpawnState{SPAWNING , WAITING,COUNTING};
+    [System.Serializable]
+    public class Wave
     {
-        transform.position = new Vector3(0, 5.56f, 0); 
+        public string name;
+        public Transform enemy;
+        public int count;
+        public float rate;
     }
 
-    // Update is called once per frame
-    void Update()
+    public Wave[] waves;
+    private int _NextWave = 0;
+    public float TimeBetweenWaves = 5f;
+    public float Wavecountdown;
+
+    private float searchcountdown = 1f;
+
+
+    private SpawnState state = SpawnState.COUNTING;
+
+
+
+     void Start()
     {
-        transform.Translate(Vector3.down * _speed * Time.deltaTime);
-        if (transform.position.y < -5.63f)
-        {
-            transform.position = new Vector3(Random.Range(-8f,8.4f), 5.56f, 0);
-        }
-       
+        Wavecountdown = TimeBetweenWaves;
+
     }
+
+
+     void Update()
+    {
+        if(state == SpawnState.WAITING)
+        {
+            //checar si el enemigo a un esta vivo
+            if (!EnemyIsAlive())
+            {
+                //new round
+                Debug.Log("Wave compleat : ");
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+        
+        if(Wavecountdown <= 0)
+        {
+            if (state != SpawnState.SPAWNING)
+            {
+                //espesar a crear una orda de alien
+                StartCoroutine(SpawnWave(waves[_NextWave]));
+
+            }
+        }
+        else
+        {
+            Wavecountdown -= Time.deltaTime;
+        }
+    }
+
+    bool EnemyIsAlive()
+    {
+        searchcountdown -= Time.deltaTime;
+        if(searchcountdown <= 0f)
+        {
+            searchcountdown = 1f;
+            if (GameObject.FindGameObjectWithTag("Enemy") == null)
+            {
+                return false;
+            }
+        }
+         return true;
+    }
+
+    IEnumerator SpawnWave(Wave _wave)
+    {
+        Debug.Log("Spawn Wave :" + _wave.name);
+        state = SpawnState.SPAWNING;
+        for(int i =0; i < _wave.count; i++)
+        {
+            SpawnEnemy(_wave.enemy);
+            yield return new WaitForSeconds(1f / _wave.rate);
+        }
+        state = SpawnState.WAITING;
+        yield break;
+    }
+
+
+    void SpawnEnemy(Transform _enemy)
+    {
+        Debug.Log("Spawing Enemy :" + _enemy.name);
+        Instantiate(_enemy, transform.position, transform.rotation);
+    }
+
+
 }
