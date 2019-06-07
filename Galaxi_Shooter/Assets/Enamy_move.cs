@@ -41,8 +41,7 @@ public class Enamy_move : MonoBehaviour
             if (!EnemyIsAlive())
             {
                 //new round
-                Debug.Log("Wave compleat : ");
-                return;
+                WaveCompleted();
             }
             else
             {
@@ -64,7 +63,23 @@ public class Enamy_move : MonoBehaviour
             Wavecountdown -= Time.deltaTime;
         }
     }
+    void WaveCompleted()
+    {
+        Debug.Log("Wave Completed");
+        state = SpawnState.COUNTING;
+        Wavecountdown = TimeBetweenWaves;
 
+        if(_NextWave + 1 > waves.Length - 1)
+        {
+            _NextWave = 0;
+            Debug.Log("All wave or completed");
+        }
+        else
+        {
+            _NextWave++;
+        }
+        
+    }
     bool EnemyIsAlive()
     {
         searchcountdown -= Time.deltaTime;
